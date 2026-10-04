@@ -231,7 +231,9 @@ namespace MissionPlanner.GCSViews
         };
 
         private bool transponderNeverConnected = true;
+#if !LIB
         private bool linuxActionLayoutConfigured;
+#endif
 
         public FlightData()
         {
@@ -2683,8 +2685,10 @@ namespace MissionPlanner.GCSViews
             if (Settings.Instance["CHK_autopan"] != null)
                 CHK_autopan.Checked = Settings.Instance.GetBoolean("CHK_autopan");
 
+#if !LIB
             if (MainV2.MONO && Settings.isUnix)
                 ConfigureLinuxActionLayout();
+#endif
 
             if (Settings.Instance.ContainsKey("HudSwap") && Settings.Instance["HudSwap"] == "true")
                 SwapHud1AndMap();
@@ -3240,6 +3244,7 @@ namespace MissionPlanner.GCSViews
             frm.Show();
         }
 
+#if !LIB
         private void ConfigureLinuxActionLayout()
         {
             if (linuxActionLayoutConfigured)
@@ -3340,6 +3345,8 @@ namespace MissionPlanner.GCSViews
                     SystemInformation.VerticalScrollBarWidth + 6);
             combo.DropDownWidth = width;
         }
+
+#endif
 
         private void hud1_Resize(object sender, EventArgs e)
         {

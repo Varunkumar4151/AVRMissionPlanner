@@ -21,6 +21,8 @@
 
  <ItemGroup>
     <Compile Remove="APMPlannerXplanes\**" />
+    <Compile Remove="Linux\**" />
+    <Compile Remove="Utilities\MonoTableLayoutSettingsConverter.cs" />
     <Compile Remove="ExtLibs\7zip\**" />
     <Compile Remove="ExtLibs\alglibnet\**" />
     <Compile Remove="ExtLibs\AltitudeAngelWings.Plugin\**" />

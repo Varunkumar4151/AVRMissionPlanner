@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="Check">
+    <PropertyGroup>
+      <AvrXamarinTargets>$(MSBuildExtensionsPath)/Xamarin/Android/Xamarin.Android.CSharp.targets</AvrXamarinTargets>
+    </PropertyGroup>
+    <Message Importance="high" Text="Checking legacy Xamarin.Android targets: $(AvrXamarinTargets)" />
+    <Error Condition="!Exists('$(AvrXamarinTargets)')" Text="Legacy Xamarin.Android targets are missing. The .NET 10 SDK and modern android workload do not build this Xamarin.Forms project directly. Use a compatible Xamarin.Android build environment or migrate the Android projects first. See Android/README.md." />
+  </Target>
+</Project>

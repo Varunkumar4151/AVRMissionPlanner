@@ -1,2 +1,3 @@
 Linux/*.sh text eol=lf
 Linux/mcs text eol=lf
+Android/*.sh text eol=lf

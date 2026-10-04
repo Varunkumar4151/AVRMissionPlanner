@@ -147,8 +147,10 @@ namespace MissionPlanner
 
             var t = Type.GetType("Mono.Runtime");
             MONO = (t != null);
+#if !LIB
             if (MONO && Settings.isUnix)
                 MonoTableLayoutSettingsConverter.Register();
+#endif
 
             Directory.SetCurrentDirectory(Settings.GetRunningDirectory());
 
