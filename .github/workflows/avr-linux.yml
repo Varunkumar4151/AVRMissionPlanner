@@ -1,97 +1,30 @@
-name: AVR Linux Package
+name: AVR Linux Build (manual only)
 
 on:
-  push:
-    branches: [airview/linux-development]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: avr-linux-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  compile:
-    name: Compile stable desktop source
-    runs-on: windows-2022
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 1
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - uses: microsoft/setup-msbuild@v2
-      - name: Compile Release
-        shell: pwsh
-        run: |
-          msbuild MissionPlanner.sln -restore -t:Build -m -v:minimal -p:Configuration=Release -bl:avr-build.binlog
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (!(Test-Path 'bin/Release/net461/MissionPlanner.exe')) { throw 'Missing application output' }
-          Copy-Item COPYING.txt bin/Release/net461/COPYING.txt
-          Copy-Item Linux/run-avr.sh bin/Release/net461/run-avr.sh
-          Copy-Item Linux/README-AVR.md bin/Release/net461/README-AVR.md
-          @(
-            'Project: AVRMissionPlanner',
-            'Base: MissionPlanner1.3.83 (b78a7495fec69793f2fcc13be4b6a3d9e06b3e4e)',
-            "Source: $env:GITHUB_REPOSITORY",
-            "Revision: $env:GITHUB_SHA",
-            'Runtime target: Linux x86_64 using Mono',
-            'Compiler host: Windows / Visual Studio MSBuild'
-          ) | Set-Content bin/Release/net461/BUILD-INFO.txt
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: AVR-build-log
-          path: avr-build.binlog
-          retention-days: 14
-      - uses: actions/upload-artifact@v4
-        with:
-          name: AVR-compiled-application
-          path: bin/Release/net461/
-          if-no-files-found: error
-          retention-days: 14
-
-  linux:
-    name: Package and check startup on Ubuntu
-    needs: compile
+  build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/setup-dotnet@v5
         with:
-          name: AVR-compiled-application
-          path: staging/AVRMissionPlanner-linux-x86_64
-      - name: Install Linux runtime and display test tools
+          dotnet-version: '10.0.x'
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y mono-complete libgdiplus fonts-dejavu-core xvfb xauth xdotool x11-utils imagemagick
-      - name: Create Linux archive
-        run: |
-          cp Linux/run-avr.sh staging/AVRMissionPlanner-linux-x86_64/run-avr.sh
-          chmod +x staging/AVRMissionPlanner-linux-x86_64/run-avr.sh
-          tar -C staging -czf AVRMissionPlanner-linux-x86_64.tar.gz AVRMissionPlanner-linux-x86_64
-          sha256sum AVRMissionPlanner-linux-x86_64.tar.gz > AVRMissionPlanner-linux-x86_64.tar.gz.sha256
-          mkdir -p extracted evidence
-          tar -C extracted -xzf AVRMissionPlanner-linux-x86_64.tar.gz
-      - name: Check extracted application startup
-        run: xvfb-run -a -s '-screen 0 1600x1000x24' bash Linux/smoke-test.sh extracted/AVRMissionPlanner-linux-x86_64 evidence
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: AVR-Linux-startup-evidence
-          path: evidence/
-          retention-days: 14
+          sudo apt-get install -y mono-devel mono-runtime libgdiplus fonts-dejavu-core rsync
+      - name: Build from source on Linux
+        run: ./Linux/build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: AVRMissionPlanner-linux-x86_64
           path: |
-            AVRMissionPlanner-linux-x86_64.tar.gz
-            AVRMissionPlanner-linux-x86_64.tar.gz.sha256
+            bin/linux/AVRMissionPlanner-linux-x86_64.tar.gz
+            bin/linux/AVRMissionPlanner-linux-x86_64.tar.gz.sha256
           if-no-files-found: error
-          retention-days: 30

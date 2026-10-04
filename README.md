@@ -58,8 +58,12 @@ To build the code:
 - Open MissionPlanner.sln with Visual Studio
 - From the Build menu, select "Build MissionPlanner"
 
-### On other systems
-Building Mission Planner on other systems isn't support currently.
+### On Linux — AVR development branch
+
+See [the local Linux build guide](Linux/README.md). This branch is based on stable
+Mission Planner 1.3.83 with selected upstream Linux compatibility fixes backported.
+Build on your Linux computer with `./Linux/build.sh`, then run `./Linux/run.sh`.
+The backport still requires local compilation and runtime verification.
 
 ## Launching Mission Planner on other system
 
