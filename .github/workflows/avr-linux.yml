@@ -73,6 +73,7 @@ jobs:
           sudo apt-get install -y mono-complete libgdiplus fonts-dejavu-core xvfb xauth xdotool x11-utils imagemagick
       - name: Create Linux archive
         run: |
+          cp Linux/run-avr.sh staging/AVRMissionPlanner-linux-x86_64/run-avr.sh
           chmod +x staging/AVRMissionPlanner-linux-x86_64/run-avr.sh
           tar -C staging -czf AVRMissionPlanner-linux-x86_64.tar.gz AVRMissionPlanner-linux-x86_64
           sha256sum AVRMissionPlanner-linux-x86_64.tar.gz > AVRMissionPlanner-linux-x86_64.tar.gz.sha256
